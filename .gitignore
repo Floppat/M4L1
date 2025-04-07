@@ -1,0 +1,4 @@
+*.pyc
+bot/config.py
+bot/data.db
+movie.db
