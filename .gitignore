@@ -2,3 +2,4 @@
 bot/config.py
 bot/data.db
 movie.db
+bot/hidden_img/

@@ -94,15 +94,15 @@ class DatabaseManager:
 
 
 def hide_img(img_name):
-    image = cv2.imread(f'M4L1/bot/img/{img_name}')
+    image = cv2.imread(f'bot/img/{img_name}')
     blurred_image = cv2.GaussianBlur(image, (15, 15), 0)
     pixelated_image = cv2.resize(blurred_image, (30, 30), interpolation=cv2.INTER_NEAREST)
     pixelated_image = cv2.resize(pixelated_image, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
-    cv2.imwrite(f'M4L1/bot/hidden_img/{img_name}', pixelated_image)
+    cv2.imwrite(f'bot/hidden_img/{img_name}', pixelated_image)
 
 if __name__ == '__main__':
     manager = DatabaseManager(DATABASE)
     manager.create_tables()
-    prizes_img = os.listdir('M4L1/bot/img')
+    prizes_img = os.listdir('bot/img')
     data = [(x,) for x in prizes_img]
     manager.add_prize(data)
