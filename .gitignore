@@ -1,5 +1,5 @@
 *.pyc
 bot/config.py
 bot/data.db
-movie.db
+temp/
 bot/hidden_img/

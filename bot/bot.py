@@ -8,21 +8,37 @@ from config import *
 
 bot = TeleBot(API_TOKEN)
 
+@bot.message_handler(commands=['rating'])
+def handle_rating(message):
+    res = manager.get_rating()
+    res = [f'| @{x[0]:<11} | {x[1]:<11}|\n{"_"*26}' for x in res]
+    res = '\n'.join(res)
+    res = f'|USER_NAME    |COUNT_PRIZE|\n{"_"*26}\n' + res
+    bot.send_message(message.chat.id, res)
+
 def gen_markup(id):
     markup = InlineKeyboardMarkup()
     markup.row_width = 1
     markup.add(InlineKeyboardButton("Получить!", callback_data=id))
     return markup
 
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
 
     prize_id = call.data
     user_id = call.message.chat.id
+    if manager.get_winners_count(prize_id) < 3:
+        res = manager.add_winner(user_id=user_id,prize_id=prize_id)
+        if res:
+            img = manager.get_prize_img(prize_id)
+            with open(f'bot/img/{img}', 'rb') as photo:
+                bot.send_photo(user_id, photo, caption="Поздравляем! Ты получил картинку!")
+        else:
+            bot.send_message(user_id, 'Ты уже получил картинку!')
+    else:
+        bot.send_message(user_id, "К сожалению, ты не успел получить картинку! Попробуй в следующий раз!)")
 
-    img = manager.get_prize_img(prize_id)
-    with open(f'bot/img/{img}', 'rb') as photo:
-        bot.send_photo(user_id, photo)
 
 
 def send_message():
@@ -42,11 +58,11 @@ def shedule_thread():
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
-    user_id = message.chat.id
+    user_id = message.from_user.id
     if user_id in manager.get_users():
         bot.reply_to(message, "Ты уже зарегестрирован!")
     else:
-        manager.add_user(user_id, message.from_user.username)
+        manager.add_user(user_id,message.from_user.username if message.from_user.username != None else '')
         bot.reply_to(message, """Привет! Добро пожаловать! 
 Тебя успешно зарегистрировали!
 Каждый час тебе будут приходить новые картинки и у тебя будет шанс их получить!
