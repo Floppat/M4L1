@@ -3,3 +3,4 @@ bot/config.py
 bot/data.db
 temp/
 bot/hidden_img/
+*collage.jpg

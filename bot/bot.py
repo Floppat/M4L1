@@ -5,6 +5,8 @@ import schedule
 import threading
 import time
 from config import *
+import cv2
+import os
 
 bot = TeleBot(API_TOKEN)
 
@@ -70,7 +72,28 @@ def handle_start(message):
 
 Только три первых пользователя получат картинку!)""")
         
+@bot.message_handler(commands=['get_my_score'])
+def handle_start(message):
+    user_id = message.from_user.id
+    if user_id not in manager.get_users():
+        bot.reply_to(message, "сначала зарегистрируйся")
+    else:
+        info = manager.get_winners_img(user_id)
+        prizes = [x[0] for x in info]
 
+        image_paths = os.listdir('bot/img')
+        image_paths = [f'bot/img/{x}' if x in prizes else f'bot/hidden_img/{x}' for x in image_paths]
+        
+        collage = create_collage(image_paths)
+
+        if not os.path.exists('bot/collages'):
+            os.makedirs('bot/collages')
+
+        path = f'bot/collages/{user_id}_collage.jpg'
+        cv2.imwrite(path, collage)
+
+        with open(path, 'rb') as photo:
+            bot.send_photo(message.chat.id, photo)
 
 def polling_thread():
     bot.polling(none_stop=True)
